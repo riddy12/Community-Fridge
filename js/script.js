@@ -1,9 +1,11 @@
-
-const storageKey = "studentPremiumFridgeUpdates";
+const storageKey = "communityFridgeUpdates";
 
 const searchInput = document.querySelector("#searchInput");
-const fridgeCards = document.querySelectorAll(".fridge-card");
+const fridgeCards = Array.from(document.querySelectorAll(".fridge-card"));
+const fridgeList = document.querySelector(".fridge-list");
+const filterButtons = document.querySelectorAll(".filter-button");
 const noResults = document.querySelector("#noResults");
+const resultCount = document.querySelector("#resultCount");
 const fridgeSelect = document.querySelector("#fridgeName");
 const logForm = document.querySelector("#logForm");
 const formMessage = document.querySelector("#formMessage");
@@ -11,175 +13,258 @@ const activityList = document.querySelector("#activityList");
 const clearUpdatesButton = document.querySelector("#clearUpdates");
 const mapTitle = document.querySelector("#mapTitle");
 const mapMessage = document.querySelector("#mapMessage");
+const mapNumber = document.querySelector("#mapNumber");
+const directionsLink = document.querySelector("#directionsLink");
+const locationButton = document.querySelector("#locationButton");
+const locationMessage = document.querySelector("#locationMessage");
+
+let currentFilter = "all";
+
+const directions = {
+  "Oak Street Fridge": "124 Oak Street Queens NY",
+  "Community Center Pantry": "469 Main Street Queens NY",
+  "Pine Park Fridge": "Pine Park North Entrance Queens NY"
+};
 
 const sampleUpdates = [
   {
     fridge: "Oak Street Fridge",
     action: "Donated food",
     details: "Fresh vegetables and bread were added.",
-    notes: "Everything was placed on the middle shelf."
+    notes: "Everything is on the middle shelf.",
+    time: "10 min ago"
   },
   {
     fridge: "Community Center Pantry",
     action: "Reported a problem",
     details: "The pantry is running low on canned food.",
-    notes: "Bottled water would also be helpful."
+    notes: "Bottled water would also be helpful.",
+    time: "2 hr ago"
   }
 ];
 
 function getSavedUpdates() {
-  const savedData = localStorage.getItem(storageKey);
-
-  if (savedData === null) {
+  try {
+    const savedData = localStorage.getItem(storageKey);
+    const parsedData = savedData ? JSON.parse(savedData) : [];
+    return Array.isArray(parsedData) ? parsedData : [];
+  } catch (error) {
+    console.warn("Saved fridge updates could not be read.", error);
     return [];
   }
-
-  return JSON.parse(savedData);
 }
 
 function saveUpdates(updates) {
   localStorage.setItem(storageKey, JSON.stringify(updates));
 }
 
-function getIcon(action) {
-  if (action.includes("Donated")) {
-    return "🥕";
-  }
-
-  if (action.includes("Picked")) {
-    return "🛍️";
-  }
-
-  if (action.includes("Cleaned")) {
-    return "✨";
-  }
-
-  return "🛠️";
+function getActionLabel(action) {
+  if (action.includes("Donated")) return "GIVE";
+  if (action.includes("Picked")) return "TAKE";
+  if (action.includes("Cleaned")) return "CARE";
+  return "FLAG";
 }
 
 function displayUpdates() {
-  const savedUpdates = getSavedUpdates();
-  const allUpdates = savedUpdates.concat(sampleUpdates);
-
-  activityList.innerHTML = "";
+  const allUpdates = getSavedUpdates().concat(sampleUpdates);
+  activityList.replaceChildren();
 
   if (allUpdates.length === 0) {
-    activityList.innerHTML = '<div class="empty-state">No updates have been added yet.</div>';
+    const emptyState = document.createElement("div");
+    emptyState.className = "empty-state";
+    emptyState.textContent = "No reports yet. Be the first neighbor to add one.";
+    activityList.appendChild(emptyState);
     return;
   }
 
-  allUpdates.forEach(function (update) {
+  allUpdates.forEach((update) => {
     const item = document.createElement("article");
     item.className = "activity-item";
 
-    const icon = document.createElement("div");
-    icon.className = "activity-icon";
-    icon.textContent = getIcon(update.action);
+    const actionLabel = document.createElement("div");
+    actionLabel.className = "activity-icon";
+    actionLabel.textContent = getActionLabel(update.action);
 
     const content = document.createElement("div");
-
-    const title = document.createElement("h3");
-    title.textContent = update.action + " at " + update.fridge;
-
+    const title = document.createElement("h4");
     const details = document.createElement("p");
-    details.textContent = update.details;
-
     const notes = document.createElement("p");
+    title.textContent = `${update.action} · ${update.fridge}`;
+    details.textContent = update.details;
     notes.textContent = update.notes;
+    content.append(title, details, notes);
 
-    content.appendChild(title);
-    content.appendChild(details);
-    content.appendChild(notes);
+    const time = document.createElement("time");
+    time.textContent = update.time || "Just now";
 
-    item.appendChild(icon);
-    item.appendChild(content);
-
+    item.append(actionLabel, content, time);
     activityList.appendChild(item);
   });
 }
 
-searchInput.addEventListener("input", function () {
+function updateVisibleCards() {
   const searchText = searchInput.value.toLowerCase().trim();
   let visibleCards = 0;
 
-  fridgeCards.forEach(function (card) {
-    const cardText = card.dataset.search;
-    const matches = cardText.includes(searchText);
-
-    card.classList.toggle("hidden", !matches);
-
-    if (matches) {
-      visibleCards += 1;
-    }
+  fridgeCards.forEach((card) => {
+    const matchesSearch = card.dataset.search.includes(searchText);
+    const matchesFilter = currentFilter === "all" || card.dataset.status === currentFilter;
+    const isVisible = matchesSearch && matchesFilter;
+    card.classList.toggle("hidden", !isVisible);
+    if (isVisible) visibleCards += 1;
   });
 
   noResults.classList.toggle("hidden", visibleCards !== 0);
+  resultCount.textContent = `${visibleCards} ${visibleCards === 1 ? "place" : "places"} found`;
+}
+
+function selectLocation(button) {
+  const fridgeName = button.dataset.name;
+  const cardNumber = button.dataset.card;
+
+  mapTitle.textContent = fridgeName;
+  mapMessage.textContent = button.dataset.message;
+  mapNumber.textContent = cardNumber;
+  directionsLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(directions[fridgeName])}`;
+  directionsLink.setAttribute("aria-label", `Get directions to ${fridgeName}`);
+
+  fridgeCards.forEach((card) => {
+    card.classList.toggle("is-selected", card.dataset.fridge === fridgeName);
+  });
+
+  document.querySelectorAll(".map-pin").forEach((pin) => {
+    pin.classList.toggle("is-active", pin.dataset.fridgeName === fridgeName);
+  });
+}
+
+function milesBetween(lat1, lng1, lat2, lng2) {
+  const toRadians = (degrees) => degrees * (Math.PI / 180);
+  const earthRadiusMiles = 3958.8;
+  const latitudeDistance = toRadians(lat2 - lat1);
+  const longitudeDistance = toRadians(lng2 - lng1);
+  const startLatitude = toRadians(lat1);
+  const endLatitude = toRadians(lat2);
+  const value =
+    Math.sin(latitudeDistance / 2) ** 2 +
+    Math.cos(startLatitude) * Math.cos(endLatitude) * Math.sin(longitudeDistance / 2) ** 2;
+  return 2 * earthRadiusMiles * Math.asin(Math.sqrt(value));
+}
+
+function sortByCurrentLocation(position) {
+  const userLatitude = position.coords.latitude;
+  const userLongitude = position.coords.longitude;
+
+  const sortedCards = fridgeCards
+    .map((card) => ({
+      card,
+      distance: milesBetween(
+        userLatitude,
+        userLongitude,
+        Number(card.dataset.lat),
+        Number(card.dataset.lng)
+      )
+    }))
+    .sort((first, second) => first.distance - second.distance);
+
+  sortedCards.forEach(({ card, distance }) => {
+    card.querySelector(".distance").textContent = `${distance.toFixed(1)} mi`;
+    fridgeList.insertBefore(card, noResults);
+  });
+
+  locationButton.textContent = "Sorted by distance";
+  locationMessage.textContent = "Locations are now ordered from closest to farthest.";
+}
+
+searchInput.addEventListener("input", updateVisibleCards);
+
+filterButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    currentFilter = button.dataset.filter;
+    filterButtons.forEach((filterButton) => {
+      const isActive = filterButton === button;
+      filterButton.classList.toggle("is-active", isActive);
+      filterButton.setAttribute("aria-pressed", String(isActive));
+    });
+    updateVisibleCards();
+  });
 });
 
-document.querySelectorAll(".select-fridge").forEach(function (button) {
-  button.addEventListener("click", function () {
+document.querySelectorAll(".select-fridge").forEach((button) => {
+  button.addEventListener("click", () => {
     fridgeSelect.value = button.dataset.fridge;
-    document.querySelector("#log").scrollIntoView({
-      behavior: "smooth"
-    });
+    document.querySelector("#updates").scrollIntoView({ behavior: "smooth" });
+    window.setTimeout(() => fridgeSelect.focus({ preventScroll: true }), 500);
   });
 });
 
-document.querySelectorAll(".show-map").forEach(function (button) {
-  button.addEventListener("click", function () {
-    mapTitle.textContent = button.dataset.name;
-    mapMessage.textContent = button.dataset.message;
+document.querySelectorAll(".show-map").forEach((button) => {
+  button.addEventListener("click", () => selectLocation(button));
+});
 
-    fridgeCards.forEach(function (card) {
-      card.classList.remove("selected-card");
-    });
-
-    button.closest(".fridge-card").classList.add("selected-card");
+document.querySelectorAll(".map-pin").forEach((pin) => {
+  pin.addEventListener("click", () => {
+    const matchingButton = document.querySelector(
+      `.show-map[data-name="${pin.dataset.fridgeName}"]`
+    );
+    if (matchingButton) selectLocation(matchingButton);
   });
 });
 
-document.querySelectorAll(".map-pin").forEach(function (pin) {
-  pin.addEventListener("click", function () {
-    const fridgeName = pin.dataset.fridgeName;
+locationButton.addEventListener("click", () => {
+  if (!navigator.geolocation) {
+    locationMessage.textContent = "Location is not supported in this browser. You can still search by neighborhood.";
+    return;
+  }
 
-    document.querySelectorAll(".show-map").forEach(function (button) {
-      if (button.dataset.name === fridgeName) {
-        button.click();
-      }
-    });
-  });
+  locationButton.disabled = true;
+  locationButton.textContent = "Finding you…";
+  locationMessage.textContent = "";
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      sortByCurrentLocation(position);
+      locationButton.disabled = false;
+    },
+    () => {
+      locationButton.disabled = false;
+      locationButton.textContent = "Use my location";
+      locationMessage.textContent = "We couldn’t access your location. Search by neighborhood instead.";
+    },
+    { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+  );
 });
 
-logForm.addEventListener("submit", function (event) {
+logForm.addEventListener("submit", (event) => {
   event.preventDefault();
 
   const update = {
     fridge: fridgeSelect.value,
     action: document.querySelector("#action").value,
     details: document.querySelector("#details").value.trim(),
-    notes: document.querySelector("#notes").value.trim() || "No extra notes."
+    notes: document.querySelector("#notes").value.trim() || "No extra notes.",
+    time: "Just now"
   };
 
   const savedUpdates = getSavedUpdates();
   savedUpdates.unshift(update);
   saveUpdates(savedUpdates);
 
-  formMessage.textContent = "Your community update was saved.";
+  formMessage.textContent = "Update posted. Thanks for looking out for your neighbors.";
   logForm.reset();
   displayUpdates();
 
-  setTimeout(function () {
+  window.setTimeout(() => {
     formMessage.textContent = "";
-  }, 3000);
+  }, 4000);
 });
 
-clearUpdatesButton.addEventListener("click", function () {
-  const shouldClear = confirm("Clear the updates you added on this browser?");
-
+clearUpdatesButton.addEventListener("click", () => {
+  const shouldClear = window.confirm("Clear the updates you added on this browser?");
   if (shouldClear) {
     localStorage.removeItem(storageKey);
     displayUpdates();
   }
 });
 
+updateVisibleCards();
 displayUpdates();
