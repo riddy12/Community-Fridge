@@ -1,0 +1,47 @@
+name: Community fridge update
+description: Share a current report about one listed fridge.
+title: "[Fridge update] "
+body:
+  - type: dropdown
+    id: location
+    attributes:
+      label: Location
+      description: Choose the fridge you visited.
+      options:
+        - Astoria Halal Community Fridge
+        - Steinway Community Fridge
+        - Clement Smiley Community Fridge
+        - FENIX Community Fridge
+        - Ozone Park Community Fridge
+        - Saint Albans Community Fridge
+    validations:
+      required: true
+  - type: dropdown
+    id: event
+    attributes:
+      label: What happened
+      options:
+        - Food is available
+        - Donations are needed
+        - Donated food
+        - Picked up food
+        - Cleaned the fridge
+        - Fridge needs attention
+        - Fridge appears unavailable
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Add only information that will help the next visitor.
+      placeholder: Example: Fresh produce is on the middle shelf.
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I understand this report will be public.
+          required: true
