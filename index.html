@@ -3,188 +3,183 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#173f35">
-  <meta name="description" content="Find, support, and share updates about community fridges in Queens.">
-  <title>Neighborhood Fridge — Queens Community Fridge Finder</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23173f35'/%3E%3Cpath d='M9 5h14v22H9zm0 11h14m-4-7v4m0 7v4' fill='none' stroke='%23fffdf8' stroke-width='2'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#f4f5f0">
+  <meta name="description" content="Find community fridges in Queens and read current updates from neighbors.">
+  <title>Neighborhood Fridge | Queens Community Fridge Map</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d654b'/%3E%3Cpath d='M9 5h14v22H9zm0 11h14m-4-7v4m0 7v4' fill='none' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
   <link rel="stylesheet" href="css/style.css">
+  <script src="vendor/leaflet/leaflet.js" defer></script>
   <script src="js/script.js" defer></script>
 </head>
 
 <body>
-  <a class="skip-link" href="#locator">Skip to the fridge locator</a>
+  <a class="skip-link" href="#locator">Skip to the map</a>
 
   <header class="site-header">
     <a class="brand" href="#top" aria-label="Neighborhood Fridge home">
-      <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
-        <path d="M12 5h24v38H12zM12 24h24M31 13v6M31 29v6"/>
+      <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
+        <rect x="9" y="5" width="22" height="30" rx="3"></rect>
+        <path d="M9 18h22M26 10v4M26 23v5"></path>
       </svg>
       <span>
         <strong>Neighborhood Fridge</strong>
-        <small>Queens, New York</small>
+        <small>Queens community map</small>
       </span>
     </a>
 
     <nav aria-label="Main navigation">
-      <a href="#locator">Find food</a>
-      <a href="#updates">Share an update</a>
+      <a href="#locator">Map</a>
+      <a href="#updates">Updates</a>
       <a href="#about">About</a>
     </nav>
 
-    <a class="header-action" href="#updates">Report a visit <span aria-hidden="true">↘</span></a>
+    <a class="header-button" href="https://github.com/riddy12/Community-Fridge/issues/new?template=fridge-update.yml" target="_blank" rel="noreferrer">
+      Share an update
+    </a>
   </header>
 
   <main id="top">
-    <section class="intro" aria-labelledby="intro-title">
-      <div class="intro-copy">
-        <p class="kicker"><span></span> Free food, shared locally</p>
-        <h1 id="intro-title">Good food belongs<br>in the <em>neighborhood.</em></h1>
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <h1 id="page-title">Community fridges<br>across Queens.</h1>
       </div>
-      <div class="intro-note">
-        <p>Find a nearby community fridge, check what it needs, and leave a quick update for the next neighbor.</p>
-        <a href="#locator">Explore the map <span aria-hidden="true">↓</span></a>
+      <div class="hero-copy">
+        <p>Find a nearby fridge, open directions, and check what neighbors have reported recently.</p>
+        <a href="#locator">View all locations <span aria-hidden="true">↓</span></a>
       </div>
-      <p class="margin-note" aria-hidden="true">Take what you need<br>Leave what you can</p>
     </section>
 
     <section id="locator" class="locator-section" aria-labelledby="locator-title">
-      <div class="locator-heading">
+      <div class="section-heading">
         <div>
-          <p class="section-index">01 / LOCATOR</p>
-          <h2 id="locator-title">What’s nearby?</h2>
+          <p class="section-label">Map and directory</p>
+          <h2 id="locator-title">Find a fridge</h2>
         </div>
-        <p><strong>3 locations</strong> serving Queens<br>Last community update: 10 min ago</p>
+        <p>Six listed locations. Always check the latest community report before making a trip.</p>
       </div>
 
-      <div class="locator-app">
-        <div class="locator-toolbar">
+      <div class="locator-shell">
+        <div class="locator-tools">
           <label class="search-field" for="searchInput">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
-            <span class="sr-only">Search fridges</span>
-            <input id="searchInput" type="search" placeholder="Search a fridge or neighborhood" autocomplete="off">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
+            <span class="sr-only">Search locations</span>
+            <input id="searchInput" type="search" placeholder="Search by fridge or neighborhood" autocomplete="off">
           </label>
           <button id="locationButton" class="location-button" type="button">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2V5M12 19v3M2 12h3M19 12h3"/></svg>
-            Use my location
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><circle cx="12" cy="12" r="8"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></svg>
+            <span class="button-label">Use my location</span>
           </button>
         </div>
 
-        <div class="filter-bar" aria-label="Filter locations">
-          <span>Show:</span>
-          <button class="filter-button is-active" type="button" data-filter="all" aria-pressed="true">All locations</button>
-          <button class="filter-button" type="button" data-filter="available" aria-pressed="false">Food available</button>
-          <button class="filter-button" type="button" data-filter="needed" aria-pressed="false">Needs donations</button>
-          <button class="filter-button" type="button" data-filter="maintenance" aria-pressed="false">Maintenance</button>
-        </div>
-
         <div class="locator-grid">
-          <div class="fridge-panel" aria-label="Community fridge results">
-            <div class="results-label">
-              <p id="resultCount">3 places found</p>
-              <span>Nearest first</span>
+          <div class="location-panel" aria-label="Community fridge locations">
+            <div class="results-bar">
+              <p id="resultCount">6 locations</p>
+              <a href="https://www.cwa1180.org/local-home/community-fridges" target="_blank" rel="noreferrer">Location source ↗</a>
             </div>
 
-            <div class="fridge-list">
-              <article class="fridge-card is-selected" data-search="oak street fridge queens astoria produce bread pantry" data-status="available" data-fridge="Oak Street Fridge" data-lat="40.7619" data-lng="-73.9240">
-                <div class="card-number">01</div>
-                <div class="card-content">
-                  <div class="card-topline">
-                    <p class="status status-good"><span></span> Well stocked</p>
-                    <p class="distance">0.2 mi</p>
-                  </div>
-                  <h3>Oak Street Fridge</h3>
-                  <p class="address">124 Oak Street · Queens, NY</p>
-                  <p class="stock"><strong>On the shelves:</strong> produce, bread, pantry goods</p>
-                  <p class="updated">Checked 10 minutes ago</p>
-                  <div class="card-actions">
-                    <button class="show-map" type="button" data-name="Oak Street Fridge" data-message="Fresh produce, bread, and pantry goods are available." data-card="01">Show on map</button>
-                    <button class="select-fridge" type="button" data-fridge="Oak Street Fridge">Log a visit</button>
+            <div id="locationList" class="location-list">
+              <article class="location-row is-selected" data-id="astoria-halal" data-search="astoria halal community fridge ditmars 23rd avenue" data-lat="40.7729970" data-lng="-73.9103886">
+                <div class="location-index">01</div>
+                <div class="location-details">
+                  <p class="neighborhood">Astoria</p>
+                  <h3>Astoria Halal Community Fridge</h3>
+                  <p class="address">35-13 23rd Avenue, Queens, NY</p>
+                  <p class="location-update" data-location="Astoria Halal Community Fridge">No recent community update</p>
+                  <div class="location-actions">
+                    <button class="show-map" type="button" data-id="astoria-halal">Show on map</button>
+                    <a href="https://www.google.com/maps/search/?api=1&query=35-13+23rd+Avenue+Queens+NY" target="_blank" rel="noreferrer">Directions ↗</a>
                   </div>
                 </div>
+                <span class="distance"></span>
               </article>
 
-              <article class="fridge-card" data-search="community center pantry queens jackson heights canned food water" data-status="needed" data-fridge="Community Center Pantry" data-lat="40.7557" data-lng="-73.8831">
-                <div class="card-number">02</div>
-                <div class="card-content">
-                  <div class="card-topline">
-                    <p class="status status-needed"><span></span> Needs donations</p>
-                    <p class="distance">0.8 mi</p>
-                  </div>
-                  <h3>Community Center Pantry</h3>
-                  <p class="address">469 Main Street · Queens, NY</p>
-                  <p class="stock"><strong>Most needed:</strong> canned food and bottled water</p>
-                  <p class="updated">Checked 2 hours ago</p>
-                  <div class="card-actions">
-                    <button class="show-map" type="button" data-name="Community Center Pantry" data-message="Shelf-stable food and bottled water would be most helpful." data-card="02">Show on map</button>
-                    <button class="select-fridge" type="button" data-fridge="Community Center Pantry">Log a visit</button>
+              <article class="location-row" data-id="steinway" data-search="steinway community fridge astoria steinway street" data-lat="40.7660953" data-lng="-73.9135779">
+                <div class="location-index">02</div>
+                <div class="location-details">
+                  <p class="neighborhood">Astoria</p>
+                  <h3>Steinway Community Fridge</h3>
+                  <p class="address">25-82 Steinway Street, Queens, NY</p>
+                  <p class="location-update" data-location="Steinway Community Fridge">No recent community update</p>
+                  <div class="location-actions">
+                    <button class="show-map" type="button" data-id="steinway">Show on map</button>
+                    <a href="https://www.google.com/maps/search/?api=1&query=25-82+Steinway+Street+Queens+NY" target="_blank" rel="noreferrer">Directions ↗</a>
                   </div>
                 </div>
+                <span class="distance"></span>
               </article>
 
-              <article class="fridge-card" data-search="pine park fridge queens maintenance closed inspection" data-status="maintenance" data-fridge="Pine Park Fridge" data-lat="40.7420" data-lng="-73.8960">
-                <div class="card-number">03</div>
-                <div class="card-content">
-                  <div class="card-topline">
-                    <p class="status status-closed"><span></span> Maintenance</p>
-                    <p class="distance">1.2 mi</p>
-                  </div>
-                  <h3>Pine Park Fridge</h3>
-                  <p class="address">Pine Park North Entrance · Queens, NY</p>
-                  <p class="stock"><strong>Temporarily closed.</strong> Please check back tomorrow.</p>
-                  <p class="updated">Checked yesterday</p>
-                  <div class="card-actions">
-                    <button class="show-map" type="button" data-name="Pine Park Fridge" data-message="This fridge is temporarily unavailable for maintenance." data-card="03">Show on map</button>
-                    <button class="select-fridge" type="button" data-fridge="Pine Park Fridge">Report status</button>
+              <article class="location-row" data-id="clement-smiley" data-search="clement smiley community fridge east elmhurst astoria boulevard" data-lat="40.7629907" data-lng="-73.8757231">
+                <div class="location-index">03</div>
+                <div class="location-details">
+                  <p class="neighborhood">East Elmhurst</p>
+                  <h3>Clement Smiley Community Fridge</h3>
+                  <p class="address">93-01 Astoria Boulevard, Queens, NY</p>
+                  <p class="location-update" data-location="Clement Smiley Community Fridge">No recent community update</p>
+                  <div class="location-actions">
+                    <button class="show-map" type="button" data-id="clement-smiley">Show on map</button>
+                    <a href="https://www.google.com/maps/search/?api=1&query=93-01+Astoria+Boulevard+Queens+NY" target="_blank" rel="noreferrer">Directions ↗</a>
                   </div>
                 </div>
+                <span class="distance"></span>
+              </article>
+
+              <article class="location-row" data-id="fenix" data-search="fenix community fridge ridgewood seneca avenue" data-lat="40.7041427" data-lng="-73.9103174">
+                <div class="location-index">04</div>
+                <div class="location-details">
+                  <p class="neighborhood">Ridgewood</p>
+                  <h3>FENIX Community Fridge</h3>
+                  <p class="address">586 Seneca Avenue, Queens, NY</p>
+                  <p class="location-update" data-location="FENIX Community Fridge">No recent community update</p>
+                  <div class="location-actions">
+                    <button class="show-map" type="button" data-id="fenix">Show on map</button>
+                    <a href="https://www.google.com/maps/search/?api=1&query=586+Seneca+Avenue+Queens+NY" target="_blank" rel="noreferrer">Directions ↗</a>
+                  </div>
+                </div>
+                <span class="distance"></span>
+              </article>
+
+              <article class="location-row" data-id="ozone-park" data-search="ozone park community fridge liberty avenue south richmond hill" data-lat="40.6904919" data-lng="-73.8138357">
+                <div class="location-index">05</div>
+                <div class="location-details">
+                  <p class="neighborhood">Ozone Park</p>
+                  <h3>Ozone Park Community Fridge</h3>
+                  <p class="address">132-02 Liberty Avenue, Queens, NY</p>
+                  <p class="location-update" data-location="Ozone Park Community Fridge">No recent community update</p>
+                  <div class="location-actions">
+                    <button class="show-map" type="button" data-id="ozone-park">Show on map</button>
+                    <a href="https://www.google.com/maps/search/?api=1&query=132-02+Liberty+Avenue+Queens+NY" target="_blank" rel="noreferrer">Directions ↗</a>
+                  </div>
+                </div>
+                <span class="distance"></span>
+              </article>
+
+              <article class="location-row" data-id="saint-albans" data-search="saint albans community fridge linden boulevard jamaica" data-lat="40.6923096" data-lng="-73.7780417">
+                <div class="location-index">06</div>
+                <div class="location-details">
+                  <p class="neighborhood">Saint Albans</p>
+                  <h3>Saint Albans Community Fridge</h3>
+                  <p class="address">172-17 Linden Boulevard, Queens, NY</p>
+                  <p class="location-update" data-location="Saint Albans Community Fridge">No recent community update</p>
+                  <div class="location-actions">
+                    <button class="show-map" type="button" data-id="saint-albans">Show on map</button>
+                    <a href="https://www.google.com/maps/search/?api=1&query=172-17+Linden+Boulevard+Queens+NY" target="_blank" rel="noreferrer">Directions ↗</a>
+                  </div>
+                </div>
+                <span class="distance"></span>
               </article>
 
               <div id="noResults" class="no-results hidden">
-                <strong>No matching locations.</strong>
-                <p>Try a fridge name, neighborhood, or another filter.</p>
+                <strong>No locations found</strong>
+                <p>Try a fridge name or another neighborhood.</p>
               </div>
             </div>
           </div>
 
-          <div class="map-card" aria-label="Illustrated map of community fridge locations">
-            <div class="map-background">
-              <span class="map-grid-label label-north">N</span>
-              <span class="map-grid-label label-neighborhood">QUEENS</span>
-              <span class="map-grid-label label-park">PINE PARK</span>
-              <span class="street-label street-oak">OAK ST.</span>
-              <span class="street-label street-main">MAIN ST.</span>
-
-              <div class="street street-one"></div>
-              <div class="street street-two"></div>
-              <div class="street street-three"></div>
-              <div class="street street-four"></div>
-              <div class="park-shape"></div>
-              <div class="block-shape block-one"></div>
-              <div class="block-shape block-two"></div>
-              <div class="block-shape block-three"></div>
-
-              <button class="map-pin pin-one is-active" type="button" data-fridge-name="Oak Street Fridge" aria-label="Oak Street Fridge">
-                <span>01</span>
-              </button>
-              <button class="map-pin pin-two" type="button" data-fridge-name="Community Center Pantry" aria-label="Community Center Pantry">
-                <span>02</span>
-              </button>
-              <button class="map-pin pin-three" type="button" data-fridge-name="Pine Park Fridge" aria-label="Pine Park Fridge">
-                <span>03</span>
-              </button>
-
-              <div class="map-compass" aria-hidden="true"><span>N</span><i></i></div>
-
-              <div class="map-label" aria-live="polite">
-                <span id="mapNumber">01</span>
-                <div>
-                  <p>Selected location</p>
-                  <h3 id="mapTitle">Oak Street Fridge</h3>
-                  <p id="mapMessage">Fresh produce, bread, and pantry goods are available.</p>
-                </div>
-                <a id="directionsLink" href="https://www.google.com/maps/search/?api=1&query=124+Oak+Street+Queens+NY" target="_blank" rel="noreferrer" aria-label="Get directions to Oak Street Fridge">Directions ↗</a>
-              </div>
-            </div>
+          <div class="map-panel">
+            <div id="realMap" aria-label="Interactive map of community fridges in Queens"></div>
+            <p id="mapFallback" class="map-fallback hidden">The live map could not load. Use the directions links in the location list.</p>
           </div>
         </div>
       </div>
@@ -192,67 +187,39 @@
     </section>
 
     <section id="updates" class="updates-section" aria-labelledby="updates-title">
-      <div class="updates-heading">
-        <p class="section-index">02 / COMMUNITY BOARD</p>
-        <h2 id="updates-title">Keep the next neighbor<br><em>in the loop.</em></h2>
-        <p>Fridge conditions change quickly. A thirty-second update makes this map more useful for everyone.</p>
+      <div class="updates-intro">
+        <div>
+          <p class="section-label">Public community board</p>
+          <h2 id="updates-title">Updates from neighbors</h2>
+        </div>
+        <div>
+          <p>Report what you found, what you donated, or a problem that needs attention. Updates are public and shared through this project’s GitHub repository.</p>
+          <a class="primary-button" href="https://github.com/riddy12/Community-Fridge/issues/new?template=fridge-update.yml" target="_blank" rel="noreferrer">Post an update ↗</a>
+        </div>
       </div>
 
-      <div class="updates-grid">
-        <form id="logForm" class="log-form">
-          <div class="form-title">
-            <span>VISIT REPORT</span>
-            <span>QUEENS / NY</span>
+      <div class="updates-board">
+        <div class="updates-toolbar">
+          <div>
+            <strong>Latest reports</strong>
+            <span id="updateStatus" aria-live="polite">Loading public updates</span>
           </div>
-
-          <label for="fridgeName">Which location?</label>
-          <select id="fridgeName" required>
-            <option value="">Choose a fridge</option>
-            <option>Oak Street Fridge</option>
-            <option>Community Center Pantry</option>
-            <option>Pine Park Fridge</option>
-          </select>
-
-          <label for="action">What happened?</label>
-          <select id="action" required>
-            <option value="">Choose an action</option>
-            <option>Donated food</option>
-            <option>Picked up food</option>
-            <option>Cleaned the fridge</option>
-            <option>Reported a problem</option>
-          </select>
-
-          <label for="details">What should neighbors know?</label>
-          <input id="details" type="text" placeholder="e.g. Added vegetables and bread" required maxlength="100">
-
-          <label for="notes">Anything else? <span>Optional</span></label>
-          <textarea id="notes" rows="3" placeholder="Add a useful detail" maxlength="180"></textarea>
-
-          <button type="submit">Post community update <span aria-hidden="true">→</span></button>
-          <p id="formMessage" class="form-message" aria-live="polite"></p>
-        </form>
-
-        <div class="activity-board">
-          <div class="board-heading">
-            <div>
-              <p>Live from the neighborhood</p>
-              <h3>Recent reports</h3>
-            </div>
-            <button id="clearUpdates" type="button">Clear mine</button>
-          </div>
-          <div id="activityList" class="activity-list" aria-live="polite"></div>
+          <button id="refreshUpdates" type="button">Refresh</button>
+        </div>
+        <div id="activityList" class="activity-list" aria-live="polite">
+          <div class="loading-state">Loading updates from GitHub</div>
         </div>
       </div>
     </section>
 
     <section id="about" class="about-section" aria-labelledby="about-title">
       <div>
-        <p class="section-index">03 / WHY IT MATTERS</p>
-        <h2 id="about-title">A small tool for a generous city.</h2>
+        <p class="section-label">About this project</p>
+        <h2 id="about-title">Built for quick, useful information.</h2>
       </div>
-      <p>Community fridges turn surplus food into a shared neighborhood resource. This project helps Queens residents find them and keep their information current—without accounts, fees, or red tape.</p>
-      <div class="team-list">
-        <span>Built by</span>
+      <p>Community fridges are shared resources. Conditions can change throughout the day, so this site combines a real location map with public reports from the people who visit.</p>
+      <div class="project-meta">
+        <span>Made by</span>
         <p>Ridwan Zoha<br>Aryanna Santana<br>Jacob Lin</p>
         <small>Teen Tech Launchpad</small>
       </div>
@@ -260,8 +227,8 @@
   </main>
 
   <footer>
-    <p>Neighborhood Fridge <span>© 2026</span></p>
-    <p>Find food · Share food · Look out for each other</p>
+    <p>Neighborhood Fridge</p>
+    <p>Location listings should be confirmed before travel.</p>
     <a href="#top">Back to top ↑</a>
   </footer>
 </body>
