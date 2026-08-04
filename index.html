@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Fridge Finder</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/script.js" defer></script>
+</head>
+
+<body>
+  <header class="top-bar">
+    <div class="container nav-row">
+      <div class="logo-area">
+        <div class="logo-icon">CF</div>
+        <div>
+          <h1>Community Fridge Finder</h1>
+          <p>Find food. Share food. Help your neighborhood.</p>
+        </div>
+      </div>
+
+      <nav>
+        <a href="#home">Home</a>
+        <a href="#fridges">Fridges</a>
+        <a href="#log">Log Use</a>
+        <a href="#about">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section id="home" class="hero-section">
+      <div class="container hero-grid">
+        <div class="hero-text">
+          <p class="eyebrow">COMMUNITY FOOD SHARING</p>
+          <h2>Helping neighbors find and support community fridges.</h2>
+          <p>
+            Community Fridge Finder makes it easy to see nearby fridge locations,
+            check their status, and share quick updates after visiting.
+          </p>
+
+          <div class="hero-buttons">
+            <a class="button primary-button" href="#fridges">Find a fridge</a>
+            <a class="button secondary-button" href="#log">Share an update</a>
+          </div>
+
+          <div class="quick-stats">
+            <div>
+              <strong>3</strong>
+              <span>Fridges listed</span>
+            </div>
+            <div>
+              <strong>4</strong>
+              <span>Ways to help</span>
+            </div>
+            <div>
+              <strong>24/7</strong>
+              <span>Community access</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-graphic">
+          <div class="graphic-window">
+            <div class="window-top">
+              <span></span><span></span><span></span>
+            </div>
+
+            <div class="fridge-scene">
+              <div class="person person-left">
+                <div class="head"></div>
+                <div class="body"></div>
+                <div class="arm"></div>
+              </div>
+
+              <div class="fridge">
+                <div class="fridge-door top-door">
+                  <div class="food-row">🥕 🥬 🍞</div>
+                  <span class="handle"></span>
+                </div>
+                <div class="fridge-door bottom-door">
+                  <div class="food-row">🥫 🧃 🍎</div>
+                  <span class="handle"></span>
+                </div>
+              </div>
+
+              <div class="person person-right">
+                <div class="head"></div>
+                <div class="body"></div>
+                <div class="arm"></div>
+              </div>
+            </div>
+
+            <div class="graphic-note note-one">Fresh food added</div>
+            <div class="graphic-note note-two">3 fridges nearby</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="fridges" class="section white-section">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">NEARBY LOCATIONS</p>
+            <h2>Find a community fridge</h2>
+          </div>
+
+          <input
+            id="searchInput"
+            class="search-box"
+            type="text"
+            placeholder="Search by name or location"
+          >
+        </div>
+
+        <div class="fridge-layout">
+          <div class="fridge-list">
+            <article class="fridge-card selected-card" data-search="oak street fridge queens">
+              <div class="card-header">
+                <div>
+                  <h3>Oak Street Fridge</h3>
+                  <p>124 Oak Street, Queens, NY</p>
+                </div>
+                <span class="status good">Well stocked</span>
+              </div>
+
+              <div class="food-tags">
+                <span>Produce</span>
+                <span>Bread</span>
+                <span>Pantry items</span>
+              </div>
+
+              <p class="updated-text">Updated 10 minutes ago</p>
+
+              <div class="card-buttons">
+                <button class="select-fridge" data-fridge="Oak Street Fridge">Log an update</button>
+                <button class="show-map" data-name="Oak Street Fridge" data-message="Produce, bread, and pantry items are available.">View details</button>
+              </div>
+            </article>
+
+            <article class="fridge-card" data-search="community center pantry queens">
+              <div class="card-header">
+                <div>
+                  <h3>Community Center Pantry</h3>
+                  <p>469 Main Street, Queens, NY</p>
+                </div>
+                <span class="status warning">Needs food</span>
+              </div>
+
+              <div class="food-tags">
+                <span>Low pantry stock</span>
+                <span>Drinks</span>
+              </div>
+
+              <p class="updated-text">Updated 2 hours ago</p>
+
+              <div class="card-buttons">
+                <button class="select-fridge" data-fridge="Community Center Pantry">Log an update</button>
+                <button class="show-map" data-name="Community Center Pantry" data-message="Shelf-stable food and bottled water would be helpful.">View details</button>
+              </div>
+            </article>
+
+            <article class="fridge-card" data-search="pine park fridge queens">
+              <div class="card-header">
+                <div>
+                  <h3>Pine Park Fridge</h3>
+                  <p>Pine Park North Entrance, Queens, NY</p>
+                </div>
+                <span class="status closed">Maintenance</span>
+              </div>
+
+              <div class="food-tags">
+                <span>Temporarily closed</span>
+                <span>Inspection</span>
+              </div>
+
+              <p class="updated-text">Updated yesterday</p>
+
+              <div class="card-buttons">
+                <button class="select-fridge" data-fridge="Pine Park Fridge">Log an update</button>
+                <button class="show-map" data-name="Pine Park Fridge" data-message="This fridge is temporarily unavailable for maintenance.">View details</button>
+              </div>
+            </article>
+
+            <p id="noResults" class="no-results hidden">No matching fridges were found.</p>
+          </div>
+
+          <div class="map-card">
+            <div class="map-background">
+              <div class="road road-one"></div>
+              <div class="road road-two"></div>
+              <div class="road road-three"></div>
+
+              <button class="map-pin pin-one" data-fridge-name="Oak Street Fridge">1</button>
+              <button class="map-pin pin-two" data-fridge-name="Community Center Pantry">2</button>
+              <button class="map-pin pin-three" data-fridge-name="Pine Park Fridge">3</button>
+
+              <div class="map-label">
+                <h3 id="mapTitle">Oak Street Fridge</h3>
+                <p id="mapMessage">Produce, bread, and pantry items are available.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="log" class="section light-section">
+      <div class="container form-grid">
+        <div class="form-info">
+          <p class="eyebrow">COMMUNITY UPDATE</p>
+          <h2>Share what happened at a fridge</h2>
+          <p>
+            A quick update helps the next person know what food is available
+            or whether the fridge needs attention.
+          </p>
+
+          <div class="help-list">
+            <div><span>1</span><p>Choose the fridge you visited.</p></div>
+            <div><span>2</span><p>Select what you did.</p></div>
+            <div><span>3</span><p>Add a short description.</p></div>
+          </div>
+        </div>
+
+        <form id="logForm" class="log-form">
+          <label for="fridgeName">Community fridge</label>
+          <select id="fridgeName" required>
+            <option value="">Choose a fridge</option>
+            <option>Oak Street Fridge</option>
+            <option>Community Center Pantry</option>
+            <option>Pine Park Fridge</option>
+          </select>
+
+          <label for="action">What did you do?</label>
+          <select id="action" required>
+            <option value="">Choose an action</option>
+            <option>Donated food</option>
+            <option>Picked up food</option>
+            <option>Cleaned the fridge</option>
+            <option>Reported a problem</option>
+          </select>
+
+          <label for="details">Details</label>
+          <input id="details" type="text" placeholder="Example: donated 4 cans" required>
+
+          <label for="notes">Extra notes</label>
+          <textarea id="notes" rows="4" placeholder="Optional information"></textarea>
+
+          <button type="submit">Save community update</button>
+          <p id="formMessage" class="form-message"></p>
+        </form>
+      </div>
+    </section>
+
+    <section class="section white-section">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">RECENT ACTIVITY</p>
+            <h2>Community updates</h2>
+          </div>
+          <button id="clearUpdates" class="clear-button">Clear my updates</button>
+        </div>
+
+        <div id="activityList" class="activity-list"></div>
+      </div>
+    </section>
+
+    <section id="about" class="section about-section">
+      <div class="container about-grid">
+        <div>
+          <p class="eyebrow light-eyebrow">ABOUT THE PROJECT</p>
+          <h2>Why we made Community Fridge Finder</h2>
+          <p>
+            Community fridges help reduce food waste and provide free food,
+            but their supplies and conditions can change quickly. Our website
+            gives neighbors one place to find fridge locations and share useful updates.
+          </p>
+        </div>
+
+        <div class="team-card">
+          <h3>Made by</h3>
+          <p>Ridwan Zoha</p>
+          <p>Aryanna Santana</p>
+          <p>Jacob Lin</p>
+          <span>Teen Tech Launchpad Project</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-row">
+      <p>Community Fridge Finder</p>
+      <p>Made by Ridwan Zoha, Aryanna Santana, and Jacob Lin</p>
+    </div>
+  </footer>
+</body>
+</html>
