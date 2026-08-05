@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="vendor/leaflet/leaflet.js" defer></script>
+  <script src="js/config.js" defer></script>
   <script src="js/script.js" defer></script>
 </head>
 
@@ -28,15 +29,16 @@
       </span>
     </a>
 
-<nav aria-label="Main navigation">
-  <a href="#how-it-works">How it works</a>
-  <a href="#locator">Map</a>
-  <a href="#updates">Updates</a>
-  <a href="#about">About</a>
-</nav>
+    <nav aria-label="Main navigation">
+      <a href="#how-it-works">How it works</a>
+      <a href="#locator">Map</a>
+      <a href="#report">Report</a>
+      <a href="#updates">Updates</a>
+      <a href="#about">About</a>
+    </nav>
 
-    <a class="header-button" href="https://github.com/riddy12/Community-Fridge/issues/new?template=fridge-update.yml" target="_blank" rel="noreferrer">
-      Share an update
+    <a class="header-button" href="#report">
+      Log a visit
     </a>
   </header>
 
@@ -46,109 +48,50 @@
         <h1 id="page-title">Community fridges<br>across Queens.</h1>
       </div>
       <div class="hero-copy">
-        <p>Find a nearby fridge, open directions, and check what neighbors have reported recently.</p>
-        <a href="#locator">View all locations <span aria-hidden="true">↓</span></a>
+        <p>Check a fridge before you go. After a visit, leave one useful update for the next neighbor.</p>
+        <a href="#locator">View all locations <span aria-hidden="true">&darr;</span></a>
       </div>
     </section>
-</section>
 
-<!-- HOW IT WORKS -->
-
-<section
-  id="how-it-works"
-  class="how-it-works-section"
-  aria-labelledby="how-it-works-title"
->
-  <div class="how-it-works-heading">
-    <div>
-      <p class="section-label">Simple and community powered</p>
-
-      <h2 id="how-it-works-title">
-        How it works
-      </h2>
-    </div>
-
-    <p>
-      Find a nearby community fridge, check what other visitors have
-      reported, and share a useful update after your visit.
-    </p>
-  </div>
-
-  <div class="steps-grid">
-
-    <article class="step-card">
-      <div class="step-top">
-        <span class="step-number">01</span>
+    <section id="how-it-works" class="how-it-works-section" aria-labelledby="how-it-works-title">
+      <div class="how-it-works-heading">
+        <div>
+          <p class="section-label">What you can do here</p>
+          <h2 id="how-it-works-title">How it works</h2>
+        </div>
+        <p>Check the latest condition, record what happened during a visit, and read the same updates everyone else sees.</p>
       </div>
 
-      <div>
-        <h3>Find a fridge</h3>
+      <div class="steps-grid">
+        <article class="step-card">
+          <span class="step-number">01</span>
+          <div>
+            <h3>Check the fridge</h3>
+            <p>Find a Queens location and see its most recent condition before making the trip.</p>
+          </div>
+          <a href="#locator">Go to the map</a>
+        </article>
 
-        <p>
-          Search by fridge name or Queens neighborhood, explore the map,
-          or use your approximate location to sort the listed fridges
-          from closest to farthest.
-        </p>
+        <article class="step-card">
+          <span class="step-number">02</span>
+          <div>
+            <h3>Log what happened</h3>
+            <p>Record a donation, pickup, cleaning, check, or problem directly on this site.</p>
+          </div>
+          <a href="#report">Log a visit</a>
+        </article>
+
+        <article class="step-card">
+          <span class="step-number">03</span>
+          <div>
+            <h3>Read recent updates</h3>
+            <p>Reports are shared across devices so the next visitor has current information.</p>
+          </div>
+          <a href="#updates">View updates</a>
+        </article>
       </div>
+    </section>
 
-      <a href="#locator">
-        Search locations
-        <span aria-hidden="true">↓</span>
-      </a>
-    </article>
-
-
-    <article class="step-card">
-      <div class="step-top">
-        <span class="step-number">02</span>
-      </div>
-
-      <div>
-        <h3>Check the latest report</h3>
-
-        <p>
-          Read recent community updates to learn whether food is
-          available, donations are needed, or a fridge may need
-          attention before making a trip.
-        </p>
-      </div>
-
-      <a href="#updates">
-        View updates
-        <span aria-hidden="true">↓</span>
-      </a>
-    </article>
-
-
-    <article class="step-card">
-      <div class="step-top">
-        <span class="step-number">03</span>
-      </div>
-
-      <div>
-        <h3>Visit or contribute</h3>
-
-        <p>
-          Open directions, visit the fridge, donate appropriate food,
-          or share a short public report that may help the next
-          community member.
-        </p>
-      </div>
-
-      <a
-        href="https://github.com/riddy12/Community-Fridge/issues/new?template=fridge-update.yml"
-        target="_blank"
-        rel="noreferrer"
-      >
-        Share an update
-        <span aria-hidden="true">↗</span>
-      </a>
-    </article>
-
-  </div>
-</section>
-
-<section id="locator" class="locator-section" aria-labelledby="locator-title">
     <section id="locator" class="locator-section" aria-labelledby="locator-title">
       <div class="section-heading">
         <div>
@@ -185,9 +128,10 @@
                   <p class="neighborhood">Astoria</p>
                   <h3>Astoria Halal Community Fridge</h3>
                   <p class="address">35-13 23rd Avenue, Queens, NY</p>
-                  <p class="location-update" data-location="Astoria Halal Community Fridge">No recent community update</p>
+                  <p class="location-update is-unknown" data-location="Astoria Halal Community Fridge">Checking recent reports</p>
                   <div class="location-actions">
                     <button class="show-map" type="button" data-id="astoria-halal">Show on map</button>
+                    <button class="report-location" type="button" data-location="Astoria Halal Community Fridge">Log visit</button>
                     <a href="https://www.google.com/maps/search/?api=1&query=35-13+23rd+Avenue+Queens+NY" target="_blank" rel="noreferrer">Directions ↗</a>
                   </div>
                 </div>
@@ -200,9 +144,10 @@
                   <p class="neighborhood">Astoria</p>
                   <h3>Steinway Community Fridge</h3>
                   <p class="address">25-82 Steinway Street, Queens, NY</p>
-                  <p class="location-update" data-location="Steinway Community Fridge">No recent community update</p>
+                  <p class="location-update is-unknown" data-location="Steinway Community Fridge">Checking recent reports</p>
                   <div class="location-actions">
                     <button class="show-map" type="button" data-id="steinway">Show on map</button>
+                    <button class="report-location" type="button" data-location="Steinway Community Fridge">Log visit</button>
                     <a href="https://www.google.com/maps/search/?api=1&query=25-82+Steinway+Street+Queens+NY" target="_blank" rel="noreferrer">Directions ↗</a>
                   </div>
                 </div>
@@ -215,9 +160,10 @@
                   <p class="neighborhood">East Elmhurst</p>
                   <h3>Clement Smiley Community Fridge</h3>
                   <p class="address">93-01 Astoria Boulevard, Queens, NY</p>
-                  <p class="location-update" data-location="Clement Smiley Community Fridge">No recent community update</p>
+                  <p class="location-update is-unknown" data-location="Clement Smiley Community Fridge">Checking recent reports</p>
                   <div class="location-actions">
                     <button class="show-map" type="button" data-id="clement-smiley">Show on map</button>
+                    <button class="report-location" type="button" data-location="Clement Smiley Community Fridge">Log visit</button>
                     <a href="https://www.google.com/maps/search/?api=1&query=93-01+Astoria+Boulevard+Queens+NY" target="_blank" rel="noreferrer">Directions ↗</a>
                   </div>
                 </div>
@@ -230,9 +176,10 @@
                   <p class="neighborhood">Ridgewood</p>
                   <h3>FENIX Community Fridge</h3>
                   <p class="address">586 Seneca Avenue, Queens, NY</p>
-                  <p class="location-update" data-location="FENIX Community Fridge">No recent community update</p>
+                  <p class="location-update is-unknown" data-location="FENIX Community Fridge">Checking recent reports</p>
                   <div class="location-actions">
                     <button class="show-map" type="button" data-id="fenix">Show on map</button>
+                    <button class="report-location" type="button" data-location="FENIX Community Fridge">Log visit</button>
                     <a href="https://www.google.com/maps/search/?api=1&query=586+Seneca+Avenue+Queens+NY" target="_blank" rel="noreferrer">Directions ↗</a>
                   </div>
                 </div>
@@ -245,9 +192,10 @@
                   <p class="neighborhood">Ozone Park</p>
                   <h3>Ozone Park Community Fridge</h3>
                   <p class="address">132-02 Liberty Avenue, Queens, NY</p>
-                  <p class="location-update" data-location="Ozone Park Community Fridge">No recent community update</p>
+                  <p class="location-update is-unknown" data-location="Ozone Park Community Fridge">Checking recent reports</p>
                   <div class="location-actions">
                     <button class="show-map" type="button" data-id="ozone-park">Show on map</button>
+                    <button class="report-location" type="button" data-location="Ozone Park Community Fridge">Log visit</button>
                     <a href="https://www.google.com/maps/search/?api=1&query=132-02+Liberty+Avenue+Queens+NY" target="_blank" rel="noreferrer">Directions ↗</a>
                   </div>
                 </div>
@@ -260,9 +208,10 @@
                   <p class="neighborhood">Saint Albans</p>
                   <h3>Saint Albans Community Fridge</h3>
                   <p class="address">172-17 Linden Boulevard, Queens, NY</p>
-                  <p class="location-update" data-location="Saint Albans Community Fridge">No recent community update</p>
+                  <p class="location-update is-unknown" data-location="Saint Albans Community Fridge">Checking recent reports</p>
                   <div class="location-actions">
                     <button class="show-map" type="button" data-id="saint-albans">Show on map</button>
+                    <button class="report-location" type="button" data-location="Saint Albans Community Fridge">Log visit</button>
                     <a href="https://www.google.com/maps/search/?api=1&query=172-17+Linden+Boulevard+Queens+NY" target="_blank" rel="noreferrer">Directions ↗</a>
                   </div>
                 </div>
@@ -285,28 +234,101 @@
       <p id="locationMessage" class="location-message" aria-live="polite"></p>
     </section>
 
+    <section id="report" class="report-section" aria-labelledby="report-title">
+      <div class="report-intro">
+        <p class="section-label">After a fridge visit</p>
+        <h2 id="report-title">Log what you found.</h2>
+        <p>Choose the current condition and record what happened. Short, specific notes are the most useful.</p>
+        <div class="shared-note">
+          <span class="shared-note-dot" aria-hidden="true"></span>
+          <p><strong>Shared with everyone.</strong> Your report is saved to this site’s community database and appears in the public activity log.</p>
+        </div>
+      </div>
+
+      <form id="reportForm" class="report-form">
+        <label class="form-field" for="reportLocation">
+          <span><b>01</b> Fridge</span>
+          <select id="reportLocation" name="location" required>
+            <option value="">Choose a location</option>
+            <option>Astoria Halal Community Fridge</option>
+            <option>Steinway Community Fridge</option>
+            <option>Clement Smiley Community Fridge</option>
+            <option>FENIX Community Fridge</option>
+            <option>Ozone Park Community Fridge</option>
+            <option>Saint Albans Community Fridge</option>
+          </select>
+        </label>
+
+        <fieldset class="form-field condition-field">
+          <legend><b>02</b> Current condition</legend>
+          <div class="condition-options">
+            <label><input type="radio" name="condition" value="Well stocked" required><span>Well stocked</span></label>
+            <label><input type="radio" name="condition" value="Some food available"><span>Some food</span></label>
+            <label><input type="radio" name="condition" value="Low or empty"><span>Low or empty</span></label>
+            <label><input type="radio" name="condition" value="Needs cleaning"><span>Needs cleaning</span></label>
+            <label><input type="radio" name="condition" value="Mechanical issue"><span>Mechanical issue</span></label>
+            <label><input type="radio" name="condition" value="Not sure"><span>Not sure</span></label>
+          </div>
+        </fieldset>
+
+        <label class="form-field" for="reportActivity">
+          <span><b>03</b> What happened</span>
+          <select id="reportActivity" name="activity" required>
+            <option value="">Choose an activity</option>
+            <option>Checked the fridge</option>
+            <option>Donated food</option>
+            <option>Picked up food</option>
+            <option>Cleaned the fridge</option>
+            <option>Reported a problem</option>
+          </select>
+        </label>
+
+        <label class="form-field" for="reportDetails">
+          <span><b>04</b> Useful details</span>
+          <textarea id="reportDetails" name="details" rows="4" minlength="5" maxlength="280" required placeholder="Example: Fresh produce is on the middle shelf."></textarea>
+          <small><span id="detailsCount">0</span>/280 characters</small>
+        </label>
+
+        <label class="public-check">
+          <input id="reportConfirmation" type="checkbox" required>
+          <span>I understand this report will be public.</span>
+        </label>
+
+        <label class="website-field" aria-hidden="true">
+          <span>Leave this field empty</span>
+          <input id="reportWebsite" type="text" name="website" tabindex="-1" autocomplete="off">
+        </label>
+
+        <div class="form-submit-row">
+          <button type="submit">Publish update</button>
+          <p>No account is required. Do not include names, phone numbers, or other private information.</p>
+        </div>
+        <p id="reportStatus" class="report-status" aria-live="polite"></p>
+      </form>
+    </section>
+
     <section id="updates" class="updates-section" aria-labelledby="updates-title">
       <div class="updates-intro">
         <div>
-          <p class="section-label">Public community board</p>
-          <h2 id="updates-title">Updates from neighbors</h2>
+          <p class="section-label">One shared activity log</p>
+          <h2 id="updates-title">What neighbors found.</h2>
         </div>
         <div>
-          <p>Report what you found, what you donated, or a problem that needs attention. Updates are public and shared through this project’s GitHub repository.</p>
-          <a class="primary-button" href="https://github.com/riddy12/Community-Fridge/issues/new?template=fridge-update.yml" target="_blank" rel="noreferrer">Post an update ↗</a>
+          <p>These reports are shared across phones and computers. Refresh after a new post to see the latest condition and activity.</p>
+          <a class="primary-button" href="#report">Log your visit</a>
         </div>
       </div>
 
       <div class="updates-board">
         <div class="updates-toolbar">
           <div>
-            <strong>Latest reports</strong>
+            <strong id="coverageCount">Latest reports</strong>
             <span id="updateStatus" aria-live="polite">Loading public updates</span>
           </div>
           <button id="refreshUpdates" type="button">Refresh</button>
         </div>
         <div id="activityList" class="activity-list" aria-live="polite">
-          <div class="loading-state">Loading updates from GitHub</div>
+          <div class="loading-state">Loading community updates</div>
         </div>
       </div>
     </section>

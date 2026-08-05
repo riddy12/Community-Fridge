@@ -1,5 +1,8 @@
-const repository = "riddy12/Community-Fridge";
-const updatesApiUrl = `https://api.github.com/repos/${repository}/issues?state=open&per_page=50`;
+const siteConfig = window.COMMUNITY_FRIDGE_CONFIG || {};
+const supabaseUrl = (siteConfig.supabaseUrl || "").replace(/\/$/, "");
+const supabasePublishableKey = siteConfig.supabasePublishableKey || "";
+const reportsApiUrl = supabaseUrl ? `${supabaseUrl}/rest/v1/fridge_reports` : "";
+const databaseIsConfigured = Boolean(reportsApiUrl && supabasePublishableKey);
 
 const searchInput = document.querySelector("#searchInput");
 const locationList = document.querySelector("#locationList");
@@ -12,7 +15,16 @@ const locationMessage = document.querySelector("#locationMessage");
 const activityList = document.querySelector("#activityList");
 const updateStatus = document.querySelector("#updateStatus");
 const refreshUpdatesButton = document.querySelector("#refreshUpdates");
+const coverageCount = document.querySelector("#coverageCount");
 const mapFallback = document.querySelector("#mapFallback");
+const reportForm = document.querySelector("#reportForm");
+const reportLocation = document.querySelector("#reportLocation");
+const reportActivity = document.querySelector("#reportActivity");
+const reportDetails = document.querySelector("#reportDetails");
+const reportWebsite = document.querySelector("#reportWebsite");
+const detailsCount = document.querySelector("#detailsCount");
+const reportStatus = document.querySelector("#reportStatus");
+const reportSubmitButton = reportForm.querySelector("button[type='submit']");
 
 const locations = locationRows.map((row, index) => ({
   id: row.dataset.id,
@@ -22,12 +34,16 @@ const locations = locationRows.map((row, index) => ({
   lng: Number(row.dataset.lng),
   index: index + 1,
   directions: row.querySelector(".location-actions a").href,
+  latestReport: null,
   row
 }));
 
 let map;
 let visibleLocations = [...locations];
 const markers = new Map();
+const currentReportWindow = 7 * 24 * 60 * 60 * 1000;
+const minimumSubmitInterval = 60 * 1000;
+const lastSubmissionKey = "community-fridge-last-report";
 
 function markerIcon(index, isActive = false) {
   return window.L.divIcon({
@@ -39,11 +55,20 @@ function markerIcon(index, isActive = false) {
   });
 }
 
+function isCurrentReport(report) {
+  return report && Date.now() - new Date(report.createdAt).getTime() <= currentReportWindow;
+}
+
 function popupContent(location) {
+  const condition = isCurrentReport(location.latestReport)
+    ? location.latestReport.condition
+    : "No report in the last 7 days";
+
   return `
     <div class="map-popup">
       <h3>${location.name}</h3>
       <p>${location.address}</p>
+      <p><strong>${condition}</strong></p>
       <a href="${location.directions}" target="_blank" rel="noreferrer">Open directions ↗</a>
     </div>
   `;
@@ -169,16 +194,6 @@ function sortLocationsByDistance(position) {
   }
 }
 
-function getIssueField(body, label) {
-  if (!body) return "";
-  const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const pattern = new RegExp(`### ${escapedLabel}\\s+([\\s\\S]*?)(?=\\n### |$)`, "i");
-  const match = body.match(pattern);
-  if (!match) return "";
-  const value = match[1].trim();
-  return value === "_No response_" ? "" : value;
-}
-
 function formatRelativeTime(dateValue) {
   const seconds = Math.round((new Date(dateValue).getTime() - Date.now()) / 1000);
   const absoluteSeconds = Math.abs(seconds);
@@ -190,13 +205,21 @@ function formatRelativeTime(dateValue) {
   return formatter.format(Math.round(seconds / 86400), "day");
 }
 
-function normalizeIssue(issue) {
+function conditionClassName(condition) {
+  if (condition === "Well stocked" || condition === "Some food available") return "is-good";
+  if (condition === "Low or empty") return "is-low";
+  if (condition === "Needs cleaning" || condition === "Mechanical issue") return "is-problem";
+  return "is-unknown";
+}
+
+function normalizeReport(report) {
   return {
-    location: getIssueField(issue.body, "Location") || "Community fridge",
-    event: getIssueField(issue.body, "What happened") || "Community update",
-    details: getIssueField(issue.body, "Details") || issue.title,
-    createdAt: issue.created_at,
-    url: issue.html_url
+    id: report.id,
+    location: report.location,
+    condition: report.condition,
+    activity: report.activity,
+    details: report.details,
+    createdAt: report.created_at
   };
 }
 
@@ -211,75 +234,179 @@ function renderUpdates(updates) {
     return;
   }
 
-  updates.forEach((update) => {
+  updates.slice(0, 20).forEach((update) => {
     const row = document.createElement("article");
     row.className = "update-row";
 
-    const kind = document.createElement("span");
-    kind.className = "update-kind";
-    kind.textContent = update.event;
+    const condition = document.createElement("span");
+    condition.className = `update-kind ${conditionClassName(update.condition)}`;
+    condition.textContent = update.condition;
 
     const title = document.createElement("h3");
-    const titleLink = document.createElement("a");
-    titleLink.href = update.url;
-    titleLink.target = "_blank";
-    titleLink.rel = "noreferrer";
-    titleLink.textContent = update.location;
-    title.appendChild(titleLink);
+    title.textContent = update.location;
 
     const details = document.createElement("p");
-    details.textContent = update.details;
+    details.textContent = `${update.activity}. ${update.details}`;
 
     const time = document.createElement("time");
     time.dateTime = update.createdAt;
+    time.title = new Date(update.createdAt).toLocaleString();
     time.textContent = formatRelativeTime(update.createdAt);
 
-    row.append(kind, title, details, time);
+    row.append(condition, title, details, time);
     activityList.appendChild(row);
   });
 }
 
 function updateLocationSummaries(updates) {
-  document.querySelectorAll(".location-update").forEach((summary) => {
-    const latest = updates.find((update) => update.location === summary.dataset.location);
-    summary.classList.toggle("has-update", Boolean(latest));
-    summary.textContent = latest
-      ? `${latest.event}, ${formatRelativeTime(latest.createdAt)}`
-      : "No recent community update";
+  let currentLocations = 0;
+
+  locations.forEach((location) => {
+    const latest = updates.find((update) => update.location === location.name) || null;
+    const summary = location.row.querySelector(".location-update");
+    const isCurrent = isCurrentReport(latest);
+    location.latestReport = latest;
+
+    if (isCurrent) {
+      currentLocations += 1;
+      summary.className = `location-update ${conditionClassName(latest.condition)}`;
+      summary.textContent = `${latest.condition}, ${formatRelativeTime(latest.createdAt)}`;
+    } else {
+      summary.className = "location-update is-unknown";
+      summary.textContent = latest
+        ? `Last report ${formatRelativeTime(latest.createdAt)}`
+        : "No report in the last 7 days";
+    }
+
+    const marker = markers.get(location.id);
+    if (marker) marker.setPopupContent(popupContent(location));
   });
+
+  coverageCount.textContent = `${currentLocations} of ${locations.length} fridges reported this week`;
+}
+
+function showUpdatesError(message) {
+  activityList.replaceChildren();
+  const errorState = document.createElement("div");
+  errorState.className = "error-state";
+  errorState.textContent = message;
+  activityList.appendChild(errorState);
 }
 
 async function loadPublicUpdates() {
+  if (!databaseIsConfigured) {
+    showUpdatesError("The shared database is being connected. Check back shortly.");
+    updateLocationSummaries([]);
+    updateStatus.textContent = "Database connection needed";
+    refreshUpdatesButton.disabled = true;
+    return;
+  }
+
   refreshUpdatesButton.disabled = true;
   updateStatus.textContent = "Checking for updates";
 
   try {
-    const response = await fetch(updatesApiUrl, {
+    const query = "?select=id,location,condition,activity,details,created_at&order=created_at.desc&limit=50";
+    const response = await fetch(`${reportsApiUrl}${query}`, {
       cache: "no-store",
-      headers: { Accept: "application/vnd.github+json" }
+      headers: { apikey: supabasePublishableKey }
     });
 
-    if (!response.ok) throw new Error(`GitHub returned ${response.status}`);
+    if (!response.ok) throw new Error(`The report service returned ${response.status}`);
 
-    const issues = await response.json();
-    const updates = issues
-      .filter((issue) => !issue.pull_request && issue.title.startsWith("[Fridge update]"))
-      .map(normalizeIssue)
-      .sort((first, second) => new Date(second.createdAt) - new Date(first.createdAt));
-
-    renderUpdates(updates);
-    updateLocationSummaries(updates);
+    const reports = (await response.json()).map(normalizeReport);
+    renderUpdates(reports);
+    updateLocationSummaries(reports);
     updateStatus.textContent = `Updated ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
   } catch (error) {
     console.error("Public updates could not be loaded.", error);
-    activityList.replaceChildren();
-    const errorState = document.createElement("div");
-    errorState.className = "error-state";
-    errorState.textContent = "Updates are temporarily unavailable. Try refreshing in a moment.";
-    activityList.appendChild(errorState);
+    showUpdatesError("Updates are temporarily unavailable. Try refreshing in a moment.");
     updateStatus.textContent = "Could not refresh";
   } finally {
     refreshUpdatesButton.disabled = false;
+  }
+}
+
+function setReportStatus(message, isError = false) {
+  reportStatus.textContent = message;
+  reportStatus.classList.toggle("is-error", isError);
+}
+
+function getLastSubmissionTime() {
+  try {
+    return Number(window.localStorage.getItem(lastSubmissionKey) || 0);
+  } catch {
+    return 0;
+  }
+}
+
+function saveLastSubmissionTime() {
+  try {
+    window.localStorage.setItem(lastSubmissionKey, String(Date.now()));
+  } catch {
+    // The database still prevents invalid rows if browser storage is unavailable.
+  }
+}
+
+async function submitReport(event) {
+  event.preventDefault();
+  setReportStatus("");
+
+  if (reportWebsite.value) {
+    reportForm.reset();
+    detailsCount.textContent = "0";
+    return;
+  }
+
+  if (!databaseIsConfigured) {
+    setReportStatus("Shared reporting is being connected. Please try again soon.", true);
+    return;
+  }
+
+  const timeSinceLastSubmission = Date.now() - getLastSubmissionTime();
+  if (timeSinceLastSubmission < minimumSubmitInterval) {
+    const seconds = Math.ceil((minimumSubmitInterval - timeSinceLastSubmission) / 1000);
+    setReportStatus(`Please wait ${seconds} seconds before posting another update.`, true);
+    return;
+  }
+
+  const selectedCondition = reportForm.querySelector("input[name='condition']:checked");
+  if (!selectedCondition || !reportForm.reportValidity()) return;
+
+  const report = {
+    location: reportLocation.value,
+    condition: selectedCondition.value,
+    activity: reportActivity.value,
+    details: reportDetails.value.trim()
+  };
+
+  reportSubmitButton.disabled = true;
+  reportSubmitButton.textContent = "Publishing";
+
+  try {
+    const response = await fetch(reportsApiUrl, {
+      method: "POST",
+      headers: {
+        apikey: supabasePublishableKey,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal"
+      },
+      body: JSON.stringify(report)
+    });
+
+    if (!response.ok) throw new Error(`The report service returned ${response.status}`);
+
+    saveLastSubmissionTime();
+    reportForm.reset();
+    detailsCount.textContent = "0";
+    setReportStatus("Update published. Everyone can see it in the activity log below.");
+    await loadPublicUpdates();
+  } catch (error) {
+    console.error("The report could not be published.", error);
+    setReportStatus("Your update could not be published. Please try again in a moment.", true);
+  } finally {
+    reportSubmitButton.disabled = false;
+    reportSubmitButton.textContent = "Publish update";
   }
 }
 
@@ -287,6 +414,14 @@ searchInput.addEventListener("input", updateSearchResults);
 
 document.querySelectorAll(".show-map").forEach((button) => {
   button.addEventListener("click", () => selectLocation(button.dataset.id));
+});
+
+document.querySelectorAll(".report-location").forEach((button) => {
+  button.addEventListener("click", () => {
+    reportLocation.value = button.dataset.location;
+    document.querySelector("#report").scrollIntoView({ behavior: "smooth" });
+    window.setTimeout(() => reportLocation.focus(), 450);
+  });
 });
 
 locationButton.addEventListener("click", () => {
@@ -313,6 +448,11 @@ locationButton.addEventListener("click", () => {
   );
 });
 
+reportDetails.addEventListener("input", () => {
+  detailsCount.textContent = String(reportDetails.value.length);
+});
+
+reportForm.addEventListener("submit", submitReport);
 refreshUpdatesButton.addEventListener("click", loadPublicUpdates);
 
 document.addEventListener("visibilitychange", () => {
@@ -321,4 +461,4 @@ document.addEventListener("visibilitychange", () => {
 
 initializeMap();
 loadPublicUpdates();
-window.setInterval(loadPublicUpdates, 120000);
+window.setInterval(loadPublicUpdates, 60000);
